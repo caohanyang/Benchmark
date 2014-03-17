@@ -55,36 +55,10 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 	protected ByteBuffer receiveText(final AsynchronousSocketChannel socket,ByteBuffer readbuff) {
 		
 		socket.read(readbuff, readbuff, new CompletionHandler<Integer, ByteBuffer>() {
-		
+
 			@Override
 			public void completed(Integer result, ByteBuffer attachment) {
-				System.out.println("AsynchronousClient:"+this+" already receive string lenth:" + result);
-					
-				if(attachment.hasRemaining()){
-					//if readbuff has remaining, then read it again
-					while(attachment.hasRemaining()){
-						//java.nio.channels.ReadPendingException
-						socket.read(attachment,attachment,this);
-						System.out.println("AsynchronousServer:receive rest of the string:");
-						
-						//The solution use get() is ok
-//						try {
-//							int j = socket.read(attachment).get();
-//							System.out.println("AsynchronousClient:"+this+" receive rest of the string:"+j);
-//						} catch (InterruptedException | ExecutionException e) {
-//							e.printStackTrace();
-//						}
-						
-					}
-					
-				}else{
-					try {
-						socket.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}	
-			
+				
 			}
 		
 			@Override
