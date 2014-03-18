@@ -8,9 +8,7 @@ import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Server_A extends Server<AsynchronousServerSocketChannel,AsynchronousSocketChannel>{
@@ -26,7 +24,7 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 		 server = AsynchronousServerSocketChannel.open(group).bind(address);  
 		 server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 	 	 server.setOption(StandardSocketOptions.SO_RCVBUF, BUFFER_SIZE);
-	 	 System.out.println("AsynchronousServer:waiting for connection...");
+	 	 //System.out.println("AsynchronousServer:waiting for connection...");
 		 
          //accept the socket
 		 server.accept(null, new ServerAccept());
@@ -45,7 +43,7 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 
 			@Override
 			public void completed(Integer result, ByteBuffer attachment) {
-				System.out.println("AsynchronousServer:already send: "+result);
+				//System.out.println("AsynchronousServer:already send: "+result);
 				try {
 					socket.close();
 				} catch (IOException e) {
@@ -74,23 +72,10 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 
 			@Override
 			public void completed(Integer result, ByteBuffer attachment) {
-				System.out.println("AsynchronousServer:already receive: "+result);
-				if(attachment.hasRemaining()){
+				//System.out.println("AsynchronousServer:"+this+" already receive: "+result);
+				if(attachment.hasRemaining()){			
 					//if readbuff has remaining, then read it again
-					while(attachment.hasRemaining()){
-						//java.nio.channels.ReadPendingException
-						socket.read(readbuff,readbuff,this);
-						System.out.println("AsynchronousServer:receive rest of the string:");
-						
-						//The solution use get() is ok
-//						try {
-//							int j=socket.read(readbuff).get();
-//							System.out.println("AsynchronousServer:receive rest of the string:"+j);
-//						} catch (InterruptedException | ExecutionException e) {
-//							e.printStackTrace();
-//						}
-					}
-					
+					socket.read(readbuff,readbuff,this);				
 				}else{
 					sendMessage(readbuff,socket);
 				}	
@@ -103,26 +88,18 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 			}
 		});
 	    
-		//socket.read(readbuff, readbuff,new ServerReceive(socket));
 		return readbuff;
 	}
 	
-
-	@Override
-	public void test() {
-
-	}
-
 	public class ServerAccept implements CompletionHandler<AsynchronousSocketChannel,Object>{
 
 		@Override
 		public void completed(AsynchronousSocketChannel result, Object attachment) {
 			// get the reslut and invoke next thread.
-			System.out.println("AsynchronousServer:connect one client");
+			//System.out.println("AsynchronousServer:connect one client");
 			server.accept(null, this);
-			//do read and write
-			//ByteBuffer readbuff=receiveMsg(result);		
-			ByteBuffer readbuff=receiveMessage(result);
+			//do read and write	
+			receiveMessage(result);
 		}
 
 		@Override
@@ -131,27 +108,4 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 		}	
 	}
 	
-//	public class ServerReceive implements CompletionHandler<Integer, ByteBuffer>{
-//		public AsynchronousSocketChannel socket=null;
-//		public ServerReceive(AsynchronousSocketChannel socket){
-//			this.socket=socket;
-//		}
-//		@Override
-//		public void completed(Integer result, ByteBuffer attachment) {
-//			System.out.println("AsynchronousServer:already receive: "+result);
-//			while(attachment.hasRemaining()){
-//				//if readbuff has remaining, then read it again
-//				socket.read(attachment,attachment,new ServerReceive(socket));
-//				System.out.println("AsynchronousServer:receive rest of the string:");
-//			}
-//			sendMessage(attachment,socket);
-//		}
-//
-//		@Override
-//		public void failed(Throwable exc, ByteBuffer attachment) {
-//			System.out.println("server fail to receive text the client");	
-//			
-//		}
-//		
-//	}
 }

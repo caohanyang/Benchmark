@@ -6,10 +6,6 @@ import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Client_A extends Client<AsynchronousSocketChannel>{
 
@@ -38,8 +34,7 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 
 			@Override
 			public void completed(Integer result, AsynchronousSocketChannel attachment) {
-				//receiveMsg(attachment);
-				receiveString=receiveMessage(attachment);
+				receiveMessage(attachment);
 			}
 
 			@Override
@@ -58,7 +53,20 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 
 			@Override
 			public void completed(Integer result, ByteBuffer attachment) {
-				
+				//System.out.println("AsynchronousClient:" + this + " already receive string lenth:" + result);
+				if(attachment.hasRemaining()){
+					//if readbuff has remaining, then read it again
+					socket.read(attachment, attachment, this);
+					//System.out.println("AsynchronousServer:receive rest of the string:");
+				} else {
+					receiveString=byteBufferToString(attachment);
+					testNow(sendString,receiveString);
+					try {
+						socket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}	
 			}
 		
 			@Override
@@ -74,18 +82,12 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 		return readbuff;
     }
 	
-	@Override
-	public void test() {
-		
-	}
-	
 	public class clientConnect implements CompletionHandler<Void, AsynchronousSocketChannel>{
 
 		@Override
 		public void completed(Void result, AsynchronousSocketChannel attachment) {
-			System.out.println("AsynchronousClient:"+this+" success to connect");
+			//System.out.println("AsynchronousClient:"+this+" success to connect");
 			sendString=sendMessage();
-			//receiveMsg(attachment);
 		}
 
 		@Override

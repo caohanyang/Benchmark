@@ -23,10 +23,10 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 			server.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
 			server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 			server.bind(new InetSocketAddress(addr,PORT_NUMBER));
-			System.out.println("SynchronousServer:waiting for connection...");  
+			//System.out.println("SynchronousServer:waiting for connection...");  
 			while(true){
 				SocketChannel socket=server.accept();
-				System.out.println("SynchronousServer:connect one client");
+				//System.out.println("SynchronousServer:connect one client");
 				ServerWorker listener=new ServerWorker(socket);
 				taskExecutor.execute(listener);
 				}
@@ -41,8 +41,8 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 	public void sendText(ByteBuffer writebuff, SocketChannel socket) {
 
 		try {
-			int i = socket.write(writebuff);
-			System.out.println("SynchronousServer:already send: "+i);
+			socket.write(writebuff);
+			//System.out.println("SynchronousServer:already send: "+i);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}finally{
@@ -58,23 +58,17 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 	@Override
 	public ByteBuffer receiveText(ByteBuffer readbuff,SocketChannel socket) {
 		try {
-			int i = socket.read(readbuff);
-			System.out.println("SynchronousServer:already receive: "+i);
+			socket.read(readbuff);
+			//System.out.println("SynchronousServer:already receive: "+i);
 			while(readbuff.hasRemaining()){
 				//if readbuff has remaining, then read it again
-				int j= socket.read(readbuff);
-				System.out.println("SynchronousServer:receive rest of the string:"+j);
+				socket.read(readbuff);
+				//System.out.println("SynchronousServer:receive rest of the string:"+j);
 			}
 		} catch (IOException e) {		
 			e.printStackTrace();
 		}	
 		return readbuff;
-	}
-	
-	@Override
-	public void test() {
-		//assert text.length()==100;
-		//assert readbuff.equals(writebuff);
 	}
 
 }

@@ -1,15 +1,15 @@
 package com.cao.io;
 
+import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import com.cao.io.Client.ClientWorker_C;
-import com.cao.io.Client.ClientWorker_U;
-
 public class Runner {
 	public static int CLIENT_NUMBER = Integer.getInteger("clientNumber", 100);
-    public static void main(String[] args) {
+	public static Date startTime=new Date();
+    public static void main(String[] args) {   	
+		System.out.println("Start Time: "+startTime.getTime());
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -19,7 +19,6 @@ public class Runner {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //newClient().init();
                 initClientPool();
             }
         }).start();
@@ -27,14 +26,24 @@ public class Runner {
 
     static Server<?,?> newServer() {
         if (Boolean.parseBoolean(System.getProperty("server.asynchronous")))
-            return new Server_A();
+        	if(Boolean.parseBoolean(System.getProperty("server.future"))){
+        		return new Server_AF();
+        	}else{
+        		return new Server_A();
+        	}
+            
         else
             return new Server_S();
     }
     
     static Client<?> newClient() {
         if (Boolean.parseBoolean(System.getProperty("client.asynchronous")))
-            return new Client_A();
+        	if(Boolean.parseBoolean(System.getProperty("client.future"))){
+        		return new Client_AF();
+        	}else{
+        		return new Client_A();
+        	}
+        
         else
             return new Client_S();
     }
@@ -42,7 +51,11 @@ public class Runner {
   
     static Runnable continuation() {
         if (Boolean.parseBoolean(System.getProperty("client.asynchronous")))
-            return newClient().new ClientWorker_C();
+        	if(Boolean.parseBoolean(System.getProperty("client.future"))){
+        		 return newClient().new ClientWorker_U();
+        	}else{
+        		 return newClient().new ClientWorker_C();
+        	}
         else
             return newClient().new ClientWorker_U();
     }
@@ -50,7 +63,6 @@ public class Runner {
    	 // create the clients pool
        ExecutorService clientPool = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
        for (int i = 0; i < CLIENT_NUMBER; i++) {
-       	Client<?> client=newClient();
        	Runnable connector=continuation();
 	    clientPool.execute(connector);
        }

@@ -2,7 +2,6 @@ package com.cao.io;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
-import java.nio.channels.SocketChannel;
 
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
 	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
@@ -11,7 +10,6 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 	abstract public void listen();
 	abstract public void sendText(ByteBuffer writebuff,C socket);
 	abstract public ByteBuffer receiveText(ByteBuffer readbuff,C socket);
-	abstract public void test();
 	
 	public void sendMessage(ByteBuffer readbuff,C socket) {
         ByteBuffer writebuff = ByteBuffer.allocate(BUFFER_SIZE);
@@ -38,8 +36,7 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 		@Override
 		public void run() {
 			ByteBuffer readbuff=receiveMessage(socket);
-			sendMessage(readbuff,socket);
-			test();				
+			sendMessage(readbuff,socket);			
 		}
 		
 	}
