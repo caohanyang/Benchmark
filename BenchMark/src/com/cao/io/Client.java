@@ -1,19 +1,23 @@
 package com.cao.io;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract public class Client<S extends NetworkChannel> {
-	public static int CLIENT_NUMBER = Integer.getInteger("clientNumber", 100);
+	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
     public static int PORT_NUMBER = Integer.getInteger("portNumber", 10000);
-    public static int BUFFER_SIZE = Integer.getInteger("buffSize", 100*1024);
+    public static int BUFFER_SIZE = Integer.getInteger("buffSize", 10*1024);
     
     protected S socket;
     protected String sendString;
     protected String receiveString;
-    public static int i=0;
+    public static AtomicInteger i=new AtomicInteger(0);
     abstract public S connect();
     
     abstract protected void sendText(ByteBuffer writebuff);
@@ -72,16 +76,12 @@ abstract public class Client<S extends NetworkChannel> {
         }
     }
 	public void testNow(String s1, String s2) {
-//		if(s1.equals(s2)){
-//			System.out.println("Task:success");
-//		}else{
-//			System.out.println("Task:failure");
-//		}
-		if(++i==CLIENT_NUMBER){
+		if(i.incrementAndGet()==CLIENT_NUMBER){
 			Date endTime=new Date();
 			long time=endTime.getTime()-Runner.startTime.getTime();
-			System.out.println("End Time: "+endTime.getTime());
-			System.out.println("time: "+time+" milliseconds");
+			System.out.println(time);
+		    //exit
+			System.exit(0);	
 		}	
 	}
 }

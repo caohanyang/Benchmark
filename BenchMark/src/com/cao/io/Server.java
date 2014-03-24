@@ -5,7 +5,7 @@ import java.nio.channels.NetworkChannel;
 
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
 	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
-	public static int BUFFER_SIZE=Integer.getInteger("buffSize", 100*1024);
+	public static int BUFFER_SIZE=Integer.getInteger("buffSize", 10*1024);
 	protected S server;
 	abstract public void listen();
 	abstract public void sendText(ByteBuffer writebuff,C socket);
