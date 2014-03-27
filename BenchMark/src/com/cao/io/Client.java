@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
-import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -13,29 +12,33 @@ abstract public class Client<S extends NetworkChannel> {
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
     public static int PORT_NUMBER = Integer.getInteger("portNumber", 10000);
     public static int BUFFER_SIZE = Integer.getInteger("buffSize", 10*1024);
-    
+    public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
+    public long startTime;
+    public static AtomicInteger i=new AtomicInteger(0);
+    //ublic static AtomicInteger messageNow=new AtomicInteger(0);
+       
     protected S socket;
     protected String sendString;
     protected String receiveString;
-    public static AtomicInteger i=new AtomicInteger(0);
-    abstract public S connect();
     
+    abstract public S connect();
     abstract protected void sendText(ByteBuffer writebuff);
-    abstract protected ByteBuffer receiveText(S socket,ByteBuffer readbuff);
+    abstract protected ByteBuffer receiveText(S socket,ByteBuffer readbuff,int messageNow);
 
     public String sendMessage() {
         ByteBuffer writebuff = ByteBuffer.allocate(BUFFER_SIZE);
-
+        
+        //startTime = System.currentTimeMillis();   //startTime
         sendString = generateString(BUFFER_SIZE);
         writebuff = ByteBuffer.wrap(sendString.getBytes());
-        
         sendText(writebuff);
+//        startTime = System.currentTimeMillis();   //startTime
         return sendString;
     }
     
-    public String receiveMessage(S socket){
+    public String receiveMessage(S socket,int messageNow){
     	ByteBuffer readbuff = ByteBuffer.allocate(BUFFER_SIZE);
-    	readbuff=receiveText(socket,readbuff);
+    	readbuff=receiveText(socket,readbuff,messageNow);
     	
 		return byteBufferToString(readbuff);
     }
@@ -69,17 +72,23 @@ abstract public class Client<S extends NetworkChannel> {
         @Override
         public void run() {
             S socket = connect();
-            sendString=sendMessage();
-            receiveString=receiveMessage(socket);
-            testNow(sendString,receiveString);
+           // AtomicInteger messageNow=new AtomicInteger(0);
+            //startTime = System.currentTimeMillis();   //startTime
+            //System.out.println("startTime:"+startTime);
+            for(int i=1;i<=MESSAGE_NUMBER;i++){
+            	//System.out.println("Message :"+i);
+            	sendString=sendMessage();
+                receiveString=receiveMessage(socket,i);
+                //testNow(sendString,receiveString);
+            }
         	
         }
     }
 	public void testNow(String s1, String s2) {
 		if(i.incrementAndGet()==CLIENT_NUMBER){
-			Date endTime=new Date();
-			long time=endTime.getTime()-Runner.startTime.getTime();
-			System.out.println(time);
+//			Date endTime=new Date();
+			//long time=endTime.getTime()-Runner.startTime.getTime();
+			System.out.println("End");
 		    //exit
 			System.exit(0);	
 		}	

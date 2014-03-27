@@ -6,9 +6,10 @@ import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client_A extends Client<AsynchronousSocketChannel>{
-
+	
 	@Override
 	public AsynchronousSocketChannel connect() {
 		try {
@@ -16,9 +17,10 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 			InetSocketAddress address = new InetSocketAddress("localhost",PORT_NUMBER);
 			socket = AsynchronousSocketChannel.open();
 			//set some options
-			socket.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
+			
+			socket.setOption(StandardSocketOptions.SO_RCVBUF, 10 * 1024);
 			socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			socket.connect(address, socket, new clientConnect());
+			socket.connect(address, socket, new clientConnect()); //TODO
 			
 			return socket;
 		} catch (IOException e) {
@@ -61,11 +63,19 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 				} else {
 					receiveString=byteBufferToString(attachment);
 					testNow(sendString,receiveString);
-					try {
-						socket.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+					if(messageNow.incrementAndGet()==MESSAGE_NUMBER){
+						System.out.println(System.currentTimeMillis()-startTime);
+						System.exit(0);	
+					}else{
+						//continue to send message
+						sendString=sendMessage();
 					}
+					
+//					try {
+//						socket.close();
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
 				}	
 			}
 		
@@ -87,7 +97,24 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 		@Override
 		public void completed(Void result, AsynchronousSocketChannel attachment) {
 			//System.out.println("AsynchronousClient:"+this+" success to connect");
+			startTime = System.currentTimeMillis();   //startTime
 			sendString=sendMessage();
+			
+//            for(int i=0;i<MESSAGE_NUMBER;i++){
+//            	
+//            	System.out.println("Message :"+i);
+////            	new Thread(new Runnable() {
+////					
+////					@Override
+////					public void run() {
+////						sendString=sendMessage();
+////						
+////					}
+////				}).start();
+//            	//sendString=sendMessage();
+//                //receiveString=receiveMessage(socket);
+//                //testNow(sendString,receiveString);
+//            }
 		}
 
 		@Override

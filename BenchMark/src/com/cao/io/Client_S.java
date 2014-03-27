@@ -6,9 +6,10 @@ import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client_S extends Client<SocketChannel> {
-	
+	public static AtomicInteger messageNow=new AtomicInteger(0);
     @Override
     public SocketChannel connect() {
 
@@ -20,7 +21,7 @@ public class Client_S extends Client<SocketChannel> {
             socket.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
             socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             socket.connect(new InetSocketAddress(addr, PORT_NUMBER));
-            //System.out.println("SynchronousClient:"+this+" success to connect");
+//            startTime = System.currentTimeMillis();   //startTime      
             return socket;
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,6 +32,7 @@ public class Client_S extends Client<SocketChannel> {
     @Override
     protected void sendText(ByteBuffer writebuff) {
         try {
+        	startTime = System.currentTimeMillis();   //startTime
             socket.write(writebuff);
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,7 +40,7 @@ public class Client_S extends Client<SocketChannel> {
     }
 
 	@Override
-	protected ByteBuffer receiveText(SocketChannel socket,ByteBuffer readbuff) {
+	protected ByteBuffer receiveText(SocketChannel socket,ByteBuffer readbuff,int messageNow) {
 		
 		try {
             socket.read(readbuff);
@@ -48,7 +50,14 @@ public class Client_S extends Client<SocketChannel> {
 				socket.read(readbuff);
 				//System.out.println("SynchronousClient:"+this+" receive rest of the string:" +j);
 			}
-            socket.close();
+			//System.out.println(messageNow);
+			if(messageNow==MESSAGE_NUMBER){
+				System.out.println("time:"+(System.currentTimeMillis()-startTime));
+				testNow(sendString, receiveString);
+				socket.close();           //close the channel
+				//System.exit(0);	
+			}
+			
         } catch (IOException e) {
             e.printStackTrace();
         } 

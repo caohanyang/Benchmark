@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 	//public static int CLIENT_NUMBER = Integer.getInteger("clientNumber", 100);
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
-	public static Date startTime=new Date();
+	//public static Date startTime=new Date();
     public static void main(String[] args) {   	
 		//System.out.println("number："+CLIENT_NUMBER);
         new Thread(new Runnable() {

@@ -6,17 +6,18 @@ import java.nio.channels.NetworkChannel;
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
 	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
 	public static int BUFFER_SIZE=Integer.getInteger("buffSize", 10*1024);
+	public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
 	protected S server;
 	abstract public void listen();
-	abstract public void sendText(ByteBuffer writebuff,C socket);
+	abstract public void sendText(ByteBuffer writebuff,C socket,int messageNow);
 	abstract public ByteBuffer receiveText(ByteBuffer readbuff,C socket);
 	
-	public void sendMessage(ByteBuffer readbuff,C socket) {
+	public void sendMessage(ByteBuffer readbuff,C socket,int messageNow) {
         ByteBuffer writebuff = ByteBuffer.allocate(BUFFER_SIZE);
 
         writebuff=ByteBuffer.wrap(readbuff.array(),0,readbuff.position());
         
-        sendText(writebuff,socket);
+        sendText(writebuff,socket,messageNow);
 
     }
     
@@ -24,7 +25,7 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
     	ByteBuffer readbuff = ByteBuffer.allocate(BUFFER_SIZE);
 
     	readbuff=receiveText(readbuff,socket);
-
+  	
         return readbuff;
     }
     
@@ -35,8 +36,29 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 		}
 		@Override
 		public void run() {
-			ByteBuffer readbuff=receiveMessage(socket);
-			sendMessage(readbuff,socket);			
+//			ByteBuffer readbuff=receiveMessage(socket);
+//			sendMessage(readbuff,socket);			
+//			while(true){
+//				ByteBuffer readbuff=receiveMessage(socket);
+//				if(readbuff==null){
+//					 System.out.println("haha");
+//					 break;
+//				}else{
+//					System.out.println("hanyang");
+//					sendMessage(readbuff,socket);	
+//				}
+//							
+//			}
+			
+			for(int i=0;i<MESSAGE_NUMBER;i++){
+				ByteBuffer readbuff=receiveMessage(socket);
+				if(readbuff==null){				
+					 break;
+				}else{
+					sendMessage(readbuff,socket,i);	
+				}
+			}
+
 		}
 		
 	}

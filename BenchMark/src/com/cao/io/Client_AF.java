@@ -20,6 +20,7 @@ public class Client_AF extends Client<AsynchronousSocketChannel> {
             socket.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
             socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             socket.connect(new InetSocketAddress(addr, PORT_NUMBER)).get();
+            startTime = System.currentTimeMillis();   //startTime
             //System.out.println("AsynchronousClient:"+this+" success to connect");
             return socket;
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -49,8 +50,12 @@ public class Client_AF extends Client<AsynchronousSocketChannel> {
 	                socket.read(readbuff).get();
 	                //System.out.println("AsynchronousClient:"+this+" receive rest of the string:" +j);
 	            }
-	            socket.close();
-	        } catch (InterruptedException | ExecutionException | IOException e) {
+	            if(messageNow.incrementAndGet()==MESSAGE_NUMBER){
+					System.out.println(System.currentTimeMillis()-startTime);
+					System.exit(0);	
+				}
+	            //socket.close();
+	        } catch (InterruptedException | ExecutionException e) {
 	            e.printStackTrace();
 	        }
 		return readbuff;

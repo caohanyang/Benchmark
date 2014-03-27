@@ -20,16 +20,23 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 			server=ServerSocketChannel.open();
 			//set some options
 			//server.configureBlocking(true); 			//set the blocking mode
-			server.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
+			server.setOption(StandardSocketOptions.SO_RCVBUF, 10 * 1024);
 			server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 			server.bind(new InetSocketAddress(addr,PORT_NUMBER));
 			//System.out.println("SynchronousServer:waiting for connection...");  
+			//SocketChannel socket=server.accept();
 			while(true){
 				SocketChannel socket=server.accept();
-				//System.out.println("SynchronousServer:connect one client");
-				ServerWorker listener=new ServerWorker(socket);
-				taskExecutor.execute(listener);
+				//System.out.println("SynchronousServer:connect one client");				
+				if(socket==null){
+					break;
+				}else{
+					ServerWorker listener=new ServerWorker(socket);
+					taskExecutor.execute(listener);
 				}
+//				ServerWorker listener=new ServerWorker(socket);
+//				taskExecutor.execute(listener);
+			}
 			  
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -38,19 +45,19 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 
 
 	@Override
-	public void sendText(ByteBuffer writebuff, SocketChannel socket) {
+	public void sendText(ByteBuffer writebuff, SocketChannel socket,int messageNow) {
 
 		try {
 			socket.write(writebuff);
 			//System.out.println("SynchronousServer:already send: "+i);
+			if(messageNow==MESSAGE_NUMBER){
+				//System.out.println("time:"+(System.currentTimeMillis()-startTime));
+				//testNow(sendString, receiveString);
+				socket.close();           //close the channel
+				//System.exit(0);	
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
-		}finally{
-			try {
-				socket.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}	
 	}
 	
@@ -58,8 +65,11 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 	@Override
 	public ByteBuffer receiveText(ByteBuffer readbuff,SocketChannel socket) {
 		try {
+
 			socket.read(readbuff);
 			//System.out.println("SynchronousServer:already receive: "+i);
+			//if(i==0) return null;       //if this is the end of the message
+			
 			while(readbuff.hasRemaining()){
 				//if readbuff has remaining, then read it again
 				socket.read(readbuff);
