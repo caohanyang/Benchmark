@@ -8,15 +8,20 @@ import java.nio.channels.NetworkChannel;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.Assert;
+import org.junit.Test;
+
+import static org.hamcrest.Matchers.*;  
+import static org.hamcrest.MatcherAssert.assertThat;
+
 abstract public class Client<S extends NetworkChannel> {
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
     public static int PORT_NUMBER = Integer.getInteger("portNumber", 10000);
-    public static int BUFFER_SIZE = Integer.getInteger("buffSize", 10*1024);
+    public static int BUFFER_SIZE = Integer.parseInt(System.getProperty("buffSize").trim());
     public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
     public long startTime;
-    public static AtomicInteger i=new AtomicInteger(0);
-    //ublic static AtomicInteger messageNow=new AtomicInteger(0);
-       
+    public static AtomicInteger clientNow=new AtomicInteger(0);
+         
     protected S socket;
     protected String sendString;
     protected String receiveString;
@@ -28,11 +33,10 @@ abstract public class Client<S extends NetworkChannel> {
     public String sendMessage() {
         ByteBuffer writebuff = ByteBuffer.allocate(BUFFER_SIZE);
         
-        //startTime = System.currentTimeMillis();   //startTime
         sendString = generateString(BUFFER_SIZE);
         writebuff = ByteBuffer.wrap(sendString.getBytes());
         sendText(writebuff);
-//        startTime = System.currentTimeMillis();   //startTime
+
         return sendString;
     }
     
@@ -64,33 +68,50 @@ abstract public class Client<S extends NetworkChannel> {
     public class ClientWorker_C implements Runnable {
         @Override
         public void run() {
-            connect();
-        	
+        	if(System.getProperty("startMode").equals(String.valueOf(startMode.BEFORE_CONNECT))){
+            	startTime = System.currentTimeMillis();   //startTime    
+            } 
+            connect();	
         }
     }
     public class ClientWorker_U implements Runnable {
         @Override
         public void run() {
-            S socket = connect();
-           // AtomicInteger messageNow=new AtomicInteger(0);
-            //startTime = System.currentTimeMillis();   //startTime
-            //System.out.println("startTime:"+startTime);
-            for(int i=1;i<=MESSAGE_NUMBER;i++){
-            	//System.out.println("Message :"+i);
-            	sendString=sendMessage();
-                receiveString=receiveMessage(socket,i);
-                //testNow(sendString,receiveString);
-            }
         	
+        	if(System.getProperty("startMode").equals(String.valueOf(startMode.BEFORE_CONNECT))){
+            	startTime = System.currentTimeMillis();   //startTime    
+            } 
+        	
+            S socket = connect();
+
+            for(int j=1;j<=MESSAGE_NUMBER;j++){
+            	sendString=sendMessage();
+                receiveString=receiveMessage(socket,j); 
+                if(System.getProperty("endMode").equals(String.valueOf(endMode.WITH_ASSERTIONS))){
+                	testNow(sendString,receiveString,j);  //check the value  
+                }          
+            }
+            exit();
         }
     }
-	public void testNow(String s1, String s2) {
-		if(i.incrementAndGet()==CLIENT_NUMBER){
-//			Date endTime=new Date();
-			//long time=endTime.getTime()-Runner.startTime.getTime();
-			System.out.println("End");
-		    //exit
+    @Test
+	public void testNow(String s1, String s2,int messageNow) {
+	   assertThat(s1, equalTo(s2));
+	   if(messageNow==MESSAGE_NUMBER){
+		   System.out.println(System.currentTimeMillis()-startTime);
+	   }
+	}
+	
+	public void exit(){
+		if(clientNow.incrementAndGet()==CLIENT_NUMBER){
+			//System.out.println("End");
 			System.exit(0);	
 		}	
+	}
+	public enum startMode{
+		BEFORE_CONNECT,AFTER_CONNECT
+	}
+	public enum endMode{
+		WITH_ASSERTIONS,WITHOUT_ASSERTIONS
 	}
 }

@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 public class Runner {
 	//public static int CLIENT_NUMBER = Integer.getInteger("clientNumber", 100);
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
-	//public static Date startTime=new Date();
     public static void main(String[] args) {   	
 		//System.out.println("number："+CLIENT_NUMBER);
         new Thread(new Runnable() {
@@ -63,6 +62,7 @@ public class Runner {
     public static void initClientPool(){
    	 // create the clients pool
        ExecutorService clientPool = Executors.newCachedThreadPool(Executors.defaultThreadFactory());
+       //ExecutorService clientPool = Executors.newFixedThreadPool(1024, Executors.defaultThreadFactory());
        for (int i = 0; i < CLIENT_NUMBER; i++) {
        	Runnable connector=continuation();
 	    clientPool.execute(connector);

@@ -8,8 +8,11 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.cao.io.Client.endMode;
+import com.cao.io.Client.startMode;
+
 public class Client_A extends Client<AsynchronousSocketChannel>{
-	
+	public AtomicInteger messageNow=new AtomicInteger(0);
 	@Override
 	public AsynchronousSocketChannel connect() {
 		try {
@@ -20,7 +23,7 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 			
 			socket.setOption(StandardSocketOptions.SO_RCVBUF, 10 * 1024);
 			socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			socket.connect(address, socket, new clientConnect()); //TODO
+			socket.connect(address, socket, new clientConnect()); 
 			
 			return socket;
 		} catch (IOException e) {
@@ -36,7 +39,8 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 
 			@Override
 			public void completed(Integer result, AsynchronousSocketChannel attachment) {
-				receiveMessage(attachment);
+				//each client start to send message
+				receiveMessage(attachment,messageNow.incrementAndGet());
 			}
 
 			@Override
@@ -49,7 +53,7 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 	}
 	
 	@Override
-	protected ByteBuffer receiveText(final AsynchronousSocketChannel socket,ByteBuffer readbuff) {
+	protected ByteBuffer receiveText(final AsynchronousSocketChannel socket,ByteBuffer readbuff,final int messageNow) {
 		
 		socket.read(readbuff, readbuff, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -61,21 +65,38 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 					socket.read(attachment, attachment, this);
 					//System.out.println("AsynchronousServer:receive rest of the string:");
 				} else {
+					//don't have remaining
 					receiveString=byteBufferToString(attachment);
-					testNow(sendString,receiveString);
-					if(messageNow.incrementAndGet()==MESSAGE_NUMBER){
-						System.out.println(System.currentTimeMillis()-startTime);
-						System.exit(0);	
+
+					//if it is the last message of the channel
+					if(messageNow==MESSAGE_NUMBER){
+						//with assertions
+						if(System.getProperty("endMode").equals(String.valueOf(endMode.WITH_ASSERTIONS))){
+							//with the assertions
+		                	testNow(sendString,receiveString,messageNow);  //check the value  
+		                }else{
+		                	//record the time
+		                	System.out.println(System.currentTimeMillis()-startTime);							                	
+		                }
+						//last message ,close the channel
+						try {
+							socket.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						} 
+						//test if it is the last client
+						exit();
+						
 					}else{
+						//if it is not the last message of the channel
+						//with assertions
+						if(System.getProperty("endMode").equals(String.valueOf(endMode.WITH_ASSERTIONS))){
+							//with the assertions, need to test
+		                	testNow(sendString,receiveString,messageNow);  //check the value  
+		                }		
 						//continue to send message
 						sendString=sendMessage();
 					}
-					
-//					try {
-//						socket.close();
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
 				}	
 			}
 		
@@ -97,24 +118,11 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 		@Override
 		public void completed(Void result, AsynchronousSocketChannel attachment) {
 			//System.out.println("AsynchronousClient:"+this+" success to connect");
-			startTime = System.currentTimeMillis();   //startTime
+			if(System.getProperty("startMode").equals(String.valueOf(startMode.AFTER_CONNECT))){
+            	startTime = System.currentTimeMillis();   //startTime    
+            }   
 			sendString=sendMessage();
-			
-//            for(int i=0;i<MESSAGE_NUMBER;i++){
-//            	
-//            	System.out.println("Message :"+i);
-////            	new Thread(new Runnable() {
-////					
-////					@Override
-////					public void run() {
-////						sendString=sendMessage();
-////						
-////					}
-////				}).start();
-//            	//sendString=sendMessage();
-//                //receiveString=receiveMessage(socket);
-//                //testNow(sendString,receiveString);
-//            }
+			//System.out.println("aynchronousclient:connect one server");
 		}
 
 		@Override

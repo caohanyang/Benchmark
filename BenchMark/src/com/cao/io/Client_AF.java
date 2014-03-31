@@ -8,6 +8,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.concurrent.ExecutionException;
 
+import com.cao.io.Client.endMode;
+import com.cao.io.Client.startMode;
+
 public class Client_AF extends Client<AsynchronousSocketChannel> {
 
     @Override
@@ -20,7 +23,9 @@ public class Client_AF extends Client<AsynchronousSocketChannel> {
             socket.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
             socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
             socket.connect(new InetSocketAddress(addr, PORT_NUMBER)).get();
-            startTime = System.currentTimeMillis();   //startTime
+            if(System.getProperty("startMode").equals(String.valueOf(startMode.AFTER_CONNECT))){
+            	startTime = System.currentTimeMillis();   //startTime    
+            }  
             //System.out.println("AsynchronousClient:"+this+" success to connect");
             return socket;
         } catch (IOException | InterruptedException | ExecutionException e) {
@@ -40,7 +45,7 @@ public class Client_AF extends Client<AsynchronousSocketChannel> {
 	}
 	
 	@Override
-	protected ByteBuffer receiveText(AsynchronousSocketChannel socket,ByteBuffer readbuff) {
+	protected ByteBuffer receiveText(AsynchronousSocketChannel socket,ByteBuffer readbuff,int messageNow) {
 		
 		 try {	      
 	            socket.read(readbuff).get();
@@ -50,12 +55,14 @@ public class Client_AF extends Client<AsynchronousSocketChannel> {
 	                socket.read(readbuff).get();
 	                //System.out.println("AsynchronousClient:"+this+" receive rest of the string:" +j);
 	            }
-	            if(messageNow.incrementAndGet()==MESSAGE_NUMBER){
-					System.out.println(System.currentTimeMillis()-startTime);
-					System.exit(0);	
-				}
-	            //socket.close();
-	        } catch (InterruptedException | ExecutionException e) {
+	            
+	            if(messageNow==MESSAGE_NUMBER){
+					if(!System.getProperty("endMode").equals(String.valueOf(endMode.WITH_ASSERTIONS))){			
+					    System.out.println(System.currentTimeMillis()-startTime);				 
+		            }  
+					socket.close();           //close the channel
+				}	
+	        } catch (InterruptedException | ExecutionException | IOException e) {
 	            e.printStackTrace();
 	        }
 		return readbuff;

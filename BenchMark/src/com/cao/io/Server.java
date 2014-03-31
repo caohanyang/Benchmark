@@ -5,7 +5,7 @@ import java.nio.channels.NetworkChannel;
 
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
 	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
-	public static int BUFFER_SIZE=Integer.getInteger("buffSize", 10*1024);
+	public static int BUFFER_SIZE = Integer.parseInt(System.getProperty("buffSize").trim());
 	public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
 	protected S server;
 	abstract public void listen();
@@ -36,21 +36,8 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 		}
 		@Override
 		public void run() {
-//			ByteBuffer readbuff=receiveMessage(socket);
-//			sendMessage(readbuff,socket);			
-//			while(true){
-//				ByteBuffer readbuff=receiveMessage(socket);
-//				if(readbuff==null){
-//					 System.out.println("haha");
-//					 break;
-//				}else{
-//					System.out.println("hanyang");
-//					sendMessage(readbuff,socket);	
-//				}
-//							
-//			}
 			
-			for(int i=0;i<MESSAGE_NUMBER;i++){
+			for(int i=1;i<=MESSAGE_NUMBER;i++){
 				ByteBuffer readbuff=receiveMessage(socket);
 				if(readbuff==null){				
 					 break;
@@ -58,8 +45,6 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 					sendMessage(readbuff,socket,i);	
 				}
 			}
-
-		}
-		
+		}	
 	}
 }

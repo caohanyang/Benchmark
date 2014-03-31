@@ -76,9 +76,9 @@ public class LineCharts extends ApplicationFrame {
 		String series2 = "Asynchronous";
 		String series3 = "Asynchronous Future";
 		// x client number
-		String sFile = "S.txt";
-		String aFile = "A.txt";
-		String fFile = "F.txt";
+		String sFile = "0324/S.txt";
+		String aFile = "0324/A.txt";
+		String fFile = "0324/F.txt";
 
 		int[] a={1,2,4,10,20,30,40,50,60,70,80,90,100};
 		//get all the date
