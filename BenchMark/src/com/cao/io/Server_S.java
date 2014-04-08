@@ -58,7 +58,7 @@ public class Server_S extends Server<ServerSocketChannel,SocketChannel> {
 	
 
 	@Override
-	public ByteBuffer receiveText(ByteBuffer readbuff,SocketChannel socket) {
+	public ByteBuffer receiveText(ByteBuffer readbuff,SocketChannel socket,int messageNow) {
 		try {
 
 			socket.read(readbuff);

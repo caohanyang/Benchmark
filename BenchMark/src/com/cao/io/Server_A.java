@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Server_A extends Server<AsynchronousServerSocketChannel,AsynchronousSocketChannel>{
-	
+	//public AtomicInteger messageNow=new AtomicInteger(0);
 	@Override
 	public void listen() {
 		    	
@@ -37,7 +37,7 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 	}
 
 	@Override
-	public void sendText(ByteBuffer writebuff, final AsynchronousSocketChannel socket) {
+	public void sendText(ByteBuffer writebuff, final AsynchronousSocketChannel socket,final int messageNow) {
 		//write
 		socket.write(writebuff, writebuff, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -45,7 +45,11 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 			public void completed(Integer result, ByteBuffer attachment) {
 				//System.out.println("AsynchronousServer:already send: "+result);
 				try {
-					socket.close();
+					if(messageNow==MESSAGE_NUMBER){
+					   socket.close();
+					}else{
+						receiveMessage(socket,messageNow+1);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -66,7 +70,7 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 
 	
 	@Override
-	public ByteBuffer receiveText(final ByteBuffer readbuff,final AsynchronousSocketChannel socket) {
+	public ByteBuffer receiveText(final ByteBuffer readbuff,final AsynchronousSocketChannel socket,final int messageNow) {
 		
 	    	socket.read(readbuff, readbuff, new CompletionHandler<Integer, ByteBuffer>() {
 
@@ -77,7 +81,8 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 					//if readbuff has remaining, then read it again
 					socket.read(readbuff,readbuff,this);				
 				}else{
-					sendMessage(readbuff,socket);
+					//AtomicInteger messageNow=new AtomicInteger(0);
+					sendMessage(readbuff,socket,messageNow);
 				}	
 			}
 
@@ -97,9 +102,10 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 		public void completed(AsynchronousSocketChannel result, Object attachment) {
 			// get the reslut and invoke next thread.
 			//System.out.println("AsynchronousServer:connect one client");
+			int messageNow=0;
 			server.accept(null, this);
 			//do read and write	
-			receiveMessage(result);
+			receiveMessage(result,++messageNow);
 		}
 
 		@Override

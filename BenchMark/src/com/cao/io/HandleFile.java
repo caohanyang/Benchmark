@@ -17,56 +17,75 @@ import java.util.List;
 import com.csvreader.CsvWriter;
 
 public class HandleFile {
+	public static String DATE_TIME = System.getProperty("dateTime").trim();
 	public static List<String> slistTotal;
 	public static List<String> alistTotal;
 	public static List<String> flistTotal;
-	public static int testTimes=10;
-	public static int removeTimes=3;
-	public static int columnNumber=3;
-	public static int clientNumber=10;
+	public static int TEST_TIMES = Integer.parseInt(System.getProperty("testTimes").trim());
+	public static int REMOVE_TIMES = Integer.parseInt(System.getProperty("removeTimes").trim());
+	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
+	//public static int testTimes=20;
+	//public static int removeTimes=4;
+	public static int modeNumber=4;
+	//public static int clientNumber=1;
 	
 	public static void main(String[] args) {
-//		String sFile = "0328/S0328.txt";
-//		String aFile = "0328/A0328.txt";
-//		String fFile = "0328/F0328.txt";
-//		
-//		slistTotal=readFile(sFile);
-//		alistTotal=readFile(aFile);
-//		flistTotal=readFile(fFile);
+		testStartTime();
 		
-//		String sbFile="0328/SB0328.csv";
-//		String saFile="0328/SA0328.csv";
-//		String snFile="0328/SN0328.csv";
-//		
-//		String abFile="0328/AB0328.csv";
-//		String aaFile="0328/AA0328.csv";
-//		String anFile="0328/AN0328.csv";
-//		
-//		String fbFile="0328/FB0328.csv";
-//		String faFile="0328/FA0328.csv";
-//		String fnFile="0328/FN0328.csv";
-//		
-//		compareStartTime(sbFile,saFile,snFile,slistTotal);
-//		compareStartTime(abFile,aaFile,anFile,alistTotal);
-//		compareStartTime(fbFile,faFile,fnFile,flistTotal);
+		//testMessageSize();
 		
-		String sFile = "0330/S0330.txt";
-		String aFile = "0330/A0330.txt";
-		String fFile = "0330/F0330.txt";
+		
+	}
+	
+	private static void testStartTime() {
+		String s="C:/Users/CAO HANYANG/git/BenchMark/BenchMark/";
+		String sFile = s+DATE_TIME+"/S"+DATE_TIME+".txt";
+		String aFile = s+DATE_TIME+"/A"+DATE_TIME+".txt";
+		String fFile = s+DATE_TIME+"/F"+DATE_TIME+".txt";
 		
 		slistTotal=readFile(sFile);
 		alistTotal=readFile(aFile);
 		flistTotal=readFile(fFile);
 		
-		String sSizeFile="0330/S0330.csv";
-		String aSizeFile="0330/A0330.csv";
-		String fSizeFile="0330/F0330.csv";
+		String sbwFile=s+DATE_TIME+"/SBW"+DATE_TIME+".csv";
+		String sawFile=s+DATE_TIME+"/SAW"+DATE_TIME+".csv";
+		String sbnFile=s+DATE_TIME+"/SBN"+DATE_TIME+".csv";
+		String sanFile=s+DATE_TIME+"/SAN"+DATE_TIME+".csv";
+	
+		String abwFile=s+DATE_TIME+"/ABW"+DATE_TIME+".csv";
+		String aawFile=s+DATE_TIME+"/AAW"+DATE_TIME+".csv";
+		String abnFile=s+DATE_TIME+"/ABN"+DATE_TIME+".csv";
+		String aanFile=s+DATE_TIME+"/AAN"+DATE_TIME+".csv";
+		
+		String fbwFile=s+DATE_TIME+"/FBW"+DATE_TIME+".csv";
+		String fawFile=s+DATE_TIME+"/FAW"+DATE_TIME+".csv";
+		String fbnFile=s+DATE_TIME+"/FBN"+DATE_TIME+".csv";
+		String fanFile=s+DATE_TIME+"/FAN"+DATE_TIME+".csv";
+		
+		compareStartTime(sbwFile,sawFile,sbnFile,sanFile,slistTotal);
+		compareStartTime(abwFile,aawFile,abnFile,aanFile,alistTotal);
+		compareStartTime(fbwFile,fawFile,fbnFile,fanFile,flistTotal);
+		
+	}
+
+	private static void testMessageSize() {
+		String sFile = "0331/S0331.txt";
+		String aFile = "0331/A0331.txt";
+		String fFile = "0331/F0331.txt";
+		
+		slistTotal=readFile(sFile);
+		alistTotal=readFile(aFile);
+		flistTotal=readFile(fFile);
+		
+		String sSizeFile="0331/S0331.csv";
+		String aSizeFile="0331/A0331.csv";
+		String fSizeFile="0331/F0331.csv";
 		
 		compareMessageSize(sSizeFile,slistTotal);
 		compareMessageSize(aSizeFile,alistTotal);
-		compareMessageSize(fSizeFile,flistTotal);
+		compareMessageSize(fSizeFile,flistTotal);	
 	}
-	
+
 	public static List<String> readFile(String fileName){
 		List<String> data=new ArrayList<String>();
 		File file=new File(fileName);
@@ -93,16 +112,17 @@ public class HandleFile {
 	
 	public static void compareMessageSize(String fileName,List<String> listTotal){ 
 	    try {  
-	          
+	         
 	         CsvWriter wb =new CsvWriter(fileName,',',Charset.forName("SJIS"));   
-	         String[] contents = {"1","10","100"}; 
+	         String[] contents = {"1","10","100","1000"}; 
 	         wb.writeRecord(contents); 
 	                 
 //	         int times=removeTimes-1;
-	         for(int i=removeTimes;i<testTimes;i++){
+	         for(int i=REMOVE_TIMES;i<TEST_TIMES;i++){
 	        	 int sum1=0;
 	        	 int sum2=0;
 	        	 int sum3=0;
+	        	 int sum4=0;
 	        	 //remove the fist few numbers of each test
 //                 if(i<removeTimes) continue;
 //                 if(i>=testTimes&i<(testTimes+removeTimes)) continue;
@@ -118,21 +138,24 @@ public class HandleFile {
 //	        		 String[] nnn={listTotal.get(i*columnNumber),listTotal.get(i*columnNumber+1),listTotal.get(i*columnNumber+2),listTotal.get(i*columnNumber+3)};
 //		        	 wn.writeRecord(nnn);
 //	        	 }   
-	        	 int stage=clientNumber*columnNumber;
+	        	 int stage=CLIENT_NUMBER*modeNumber;
 	        	 for(int j=0;j<stage;j++){
-	        		 if(j<clientNumber){
+	        		 if(j<CLIENT_NUMBER){
 		        		 sum1=sum1+Integer.parseInt(listTotal.get(i*stage+j));
-		        	 }else if(j<clientNumber*2){
+		        	 }else if(j<CLIENT_NUMBER*2){
 		        		 sum2=sum2+Integer.parseInt(listTotal.get(i*stage+j));
-		        	 }else{
+		        	 }else if(j<CLIENT_NUMBER*3){
 		        		 sum3=sum3+Integer.parseInt(listTotal.get(i*stage+j));
+		        	 }else{
+		        		 sum4=sum4+Integer.parseInt(listTotal.get(i*stage+j));
 		        	 }
 	        	 }
 	        	 
-	        	 int median1=sum1/clientNumber;
-	        	 int median2=sum2/clientNumber;
-	        	 int median3=sum3/clientNumber;
-	        	 String [] vvv={""+median1,""+median2,""+median3};
+	        	 int median1=sum1/CLIENT_NUMBER;
+	        	 int median2=sum2/CLIENT_NUMBER;
+	        	 int median3=sum3/CLIENT_NUMBER;
+	        	 int median4=sum4/CLIENT_NUMBER;
+	        	 String [] vvv={""+median1,""+median2,""+median3,""+median4};
 	        	 wb.writeRecord(vvv);
 	        	 
 	         }   
@@ -144,39 +167,55 @@ public class HandleFile {
 	     }  
 	}
 	
-	public static void compareStartTime(String bfileName,String afileName,String nfileName,List<String> listTotal){ 
+	public static void compareStartTime(String bwfileName,String awfileName,String bnfileName,String anfileName,List<String> listTotal){ 
 	    try {  
-	          
-	         CsvWriter wb =new CsvWriter(bfileName,',',Charset.forName("SJIS"));  
-	         CsvWriter wa =new CsvWriter(afileName,',',Charset.forName("SJIS"));  
-	         CsvWriter wn =new CsvWriter(nfileName,',',Charset.forName("SJIS"));  
+	    	 File file1=new File(bwfileName);
+	    	 File file2=new File(awfileName);
+	    	 File file3=new File(bnfileName);
+	    	 File file4=new File(anfileName);
+	    	 file1.createNewFile();
+	    	 file2.createNewFile();
+	    	 file3.createNewFile();
+	    	 file4.createNewFile();
+	    	 //System.out.println(file1.getAbsolutePath());
+	    	 //System.out.println("111");
+	         CsvWriter bw =new CsvWriter(bwfileName,',',Charset.forName("SJIS"));  
+	         CsvWriter aw =new CsvWriter(awfileName,',',Charset.forName("SJIS"));  
+	         CsvWriter bn =new CsvWriter(bnfileName,',',Charset.forName("SJIS")); 
+	         CsvWriter an =new CsvWriter(anfileName,',',Charset.forName("SJIS")); 
 	         String[] contents = {"1","10","100","1000"}; 
-	         wb.writeRecord(contents); 
-	         wa.writeRecord(contents); 
-	         wn.writeRecord(contents); 
+	         bw.writeRecord(contents); 
+	         aw.writeRecord(contents); 
+	         bn.writeRecord(contents); 
+	         an.writeRecord(contents);
 
-	         for(int i=0;i<listTotal.size()/columnNumber;i++){
+	         for(int i=0;i<listTotal.size()/modeNumber;i++){
 	        	 //remove the fist few numbers of each test
-                 if(i<removeTimes) continue;
-                 if(i>=testTimes&i<(testTimes+removeTimes)) continue;
-                 if(i>=(testTimes*2)&i<(testTimes*2+removeTimes)) continue;
+                 if(i<REMOVE_TIMES) continue;
+                 if(i>=TEST_TIMES&i<(TEST_TIMES+REMOVE_TIMES)) continue;
+                 if(i>=(TEST_TIMES*2)&i<(TEST_TIMES*2+REMOVE_TIMES)) continue;
+                 if(i>=(TEST_TIMES*3)&i<(TEST_TIMES*3+REMOVE_TIMES)) continue;
 	        	 
-	        	 if(i<testTimes){
-	        		 String[] bbb={listTotal.get(i*columnNumber),listTotal.get(i*columnNumber+1),listTotal.get(i*columnNumber+2),listTotal.get(i*columnNumber+3)};
-		        	 wb.writeRecord(bbb);
-	        	 }else if(i<testTimes*2){
-	        		 String[] aaa={listTotal.get(i*columnNumber),listTotal.get(i*columnNumber+1),listTotal.get(i*columnNumber+2),listTotal.get(i*columnNumber+3)};
-		        	 wa.writeRecord(aaa);
-	        	 }else{
-	        		 String[] nnn={listTotal.get(i*columnNumber),listTotal.get(i*columnNumber+1),listTotal.get(i*columnNumber+2),listTotal.get(i*columnNumber+3)};
-		        	 wn.writeRecord(nnn);
+	        	 if(i<TEST_TIMES){
+	        		 String[] bbb={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 bw.writeRecord(bbb);
+	        	 }else if(i<TEST_TIMES*2){
+	        		 String[] aaa={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 aw.writeRecord(aaa);
+	        	 }else if(i<TEST_TIMES*3){
+	        		 String[] nnn={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 bn.writeRecord(nnn);
+	        	 }else {
+	        		 String[] kkk={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 an.writeRecord(kkk);
 	        	 }
 	        	 
 	         }
 	         
-	         wb.close();  
-	         wa.close();
-	         wn.close();
+	         bw.close();  
+	         aw.close();
+	         bn.close();
+	         an.close();
 	     } catch (IOException e) {  
 	        e.printStackTrace();  
 	     }  

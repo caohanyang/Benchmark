@@ -2,6 +2,7 @@ package com.cao.io;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
 	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
@@ -10,7 +11,7 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 	protected S server;
 	abstract public void listen();
 	abstract public void sendText(ByteBuffer writebuff,C socket,int messageNow);
-	abstract public ByteBuffer receiveText(ByteBuffer readbuff,C socket);
+	abstract public ByteBuffer receiveText(ByteBuffer readbuff,C socket,int messageNow);
 	
 	public void sendMessage(ByteBuffer readbuff,C socket,int messageNow) {
         ByteBuffer writebuff = ByteBuffer.allocate(BUFFER_SIZE);
@@ -21,10 +22,10 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 
     }
     
-    public ByteBuffer receiveMessage(C socket){
+    public ByteBuffer receiveMessage(C socket,int messageNow){
     	ByteBuffer readbuff = ByteBuffer.allocate(BUFFER_SIZE);
 
-    	readbuff=receiveText(readbuff,socket);
+    	readbuff=receiveText(readbuff,socket,messageNow);
   	
         return readbuff;
     }
@@ -38,7 +39,8 @@ abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> 
 		public void run() {
 			
 			for(int i=1;i<=MESSAGE_NUMBER;i++){
-				ByteBuffer readbuff=receiveMessage(socket);
+				ByteBuffer readbuff=receiveMessage(socket,i);
+				//ByteBuffer readbuff=receiveMessage(socket);
 				if(readbuff==null){				
 					 break;
 				}else{

@@ -30,8 +30,12 @@ public class Server_AF extends Server<AsynchronousServerSocketChannel,Asynchrono
 					Future<AsynchronousSocketChannel> asynchronousSocketChannelFuture=server.accept();
 					final AsynchronousSocketChannel asynchronousSocketChannel = asynchronousSocketChannelFuture.get();
 					//System.out.println("AsynchronousServer:connect one client");
-					ServerWorker listener=new ServerWorker(asynchronousSocketChannel);
-					taskExecutor.execute(listener);
+					if(asynchronousSocketChannel==null){
+						break;
+					}else{
+						ServerWorker listener=new ServerWorker(asynchronousSocketChannel);
+						taskExecutor.execute(listener);
+					}
 				} catch (InterruptedException | ExecutionException e) {
 					e.printStackTrace();
 				} 				
@@ -42,18 +46,20 @@ public class Server_AF extends Server<AsynchronousServerSocketChannel,Asynchrono
 	}
 
 	@Override
-	public void sendText(ByteBuffer writebuff, AsynchronousSocketChannel socket) {
+	public void sendText(ByteBuffer writebuff, AsynchronousSocketChannel socket,int messageNow) {
 		try {
 			socket.write(writebuff).get();
 			//System.out.println("AsynchronousServer:already send: "+i);
-			socket.close();
+            if(messageNow==MESSAGE_NUMBER){
+				socket.close();           //close the channel //TODO
+			}
 		} catch (InterruptedException | ExecutionException | IOException e) {
 			e.printStackTrace();
 		}	
 	}
 	
 	@Override
-	public ByteBuffer receiveText(ByteBuffer readbuff,AsynchronousSocketChannel socket) {
+	public ByteBuffer receiveText(ByteBuffer readbuff,AsynchronousSocketChannel socket,int messageNow) {
 		try {
 			socket.read(readbuff).get();
 			//System.out.println("AsynchronousServer:already receive: "+i);
