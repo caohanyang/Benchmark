@@ -1,14 +1,10 @@
 package com.cao.io;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.NetworkChannel;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;  
@@ -16,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 abstract public class Client<S extends NetworkChannel> {
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
-    public static int PORT_NUMBER = Integer.getInteger("portNumber", 10000);
+	public static int PORT_NUMBER=Integer.parseInt(System.getProperty("portNumber").trim());
     public static int BUFFER_SIZE = Integer.parseInt(System.getProperty("buffSize").trim());
     public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
     public long startTime;
@@ -88,7 +84,7 @@ abstract public class Client<S extends NetworkChannel> {
             	sendString=sendMessage();
                 receiveString=receiveMessage(socket,j); 
                 if(System.getProperty("endMode").equals(String.valueOf(endMode.WITH_ASSERTIONS))){
-                	testNow(sendString,receiveString,j);  //check the value  
+					testNow(sendString,receiveString,j);  //check the value  
                 }          
             }
             exit();
@@ -96,7 +92,13 @@ abstract public class Client<S extends NetworkChannel> {
     }
     @Test
 	public void testNow(String s1, String s2,int messageNow) {
-	   assertThat(s1, equalTo(s2));
+	   try {
+		    assertThat(s1, equalTo(s2));
+		   //assertThat(s1,equalTo(""));
+		} catch (Exception e) {
+			System.out.println(0);
+			System.exit(0);
+		}
 	   if(messageNow==MESSAGE_NUMBER){
 		   System.out.println(System.currentTimeMillis()-startTime);
 	   }

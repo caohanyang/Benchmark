@@ -18,15 +18,41 @@ public class Client_A extends Client<AsynchronousSocketChannel>{
 		try {
 			//open and bind
 			InetSocketAddress address = new InetSocketAddress("localhost",PORT_NUMBER);
-			socket = AsynchronousSocketChannel.open();
+			try {
+				socket = AsynchronousSocketChannel.open();
+			} catch (Exception e) {
+				System.out.println("Cannot open the socket");
+				System.exit(0);
+			}
 			//set some options
 			
-			socket.setOption(StandardSocketOptions.SO_RCVBUF, 10 * 1024);
-			socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			socket.connect(address, socket, new clientConnect()); 
+			try {
+				socket.setOption(StandardSocketOptions.SO_RCVBUF, BUFFER_SIZE*MESSAGE_NUMBER);
+			} catch (Exception e) {
+				System.out.println("Cannot set the reveive buff");
+				System.exit(0);
+			}
+	    	try {
+            	socket.setOption(StandardSocketOptions.SO_SNDBUF, BUFFER_SIZE*MESSAGE_NUMBER);
+			} catch (Exception e) {
+				System.out.println("Cannot set the send buff");
+				System.exit(0);
+			}		
+	    	try {
+				socket.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			} catch (Exception e) {
+				System.out.println("Cannot set the reuse address");
+				System.exit(0);
+			}
+			try {
+				socket.connect(address, socket, new clientConnect());
+			} catch (Exception e) {
+				System.out.println("Error in connect");
+				System.exit(0);
+			} 
 			
 			return socket;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return  null;

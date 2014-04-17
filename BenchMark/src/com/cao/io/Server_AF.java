@@ -17,14 +17,45 @@ public class Server_AF extends Server<AsynchronousServerSocketChannel,Asynchrono
 	public void listen() {
 		ExecutorService taskExecutor = Executors.newCachedThreadPool(Executors.defaultThreadFactory());  
 		//open and bind
+		InetSocketAddress address = new InetSocketAddress("localhost",PORT_NUMBER);
 		try {			
-			InetAddress addr = InetAddress.getByName("localhost");
-			server=AsynchronousServerSocketChannel.open();
+			
+			try {
+				server=AsynchronousServerSocketChannel.open();
+			} catch (Exception e) {
+				System.out.println("Cannot open the server");
+				System.exit(0);
+			}
 			//set some options
-			server.setOption(StandardSocketOptions.SO_RCVBUF, 4 * 1024);
-			server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-			server.bind(new InetSocketAddress(addr,PORT_NUMBER));
+			try {
+				server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+			} catch (Exception e) {
+				System.out.println("Cannot set the reuse address");
+				System.exit(0);
+			}
+			try {
+				server.setOption(StandardSocketOptions.SO_RCVBUF, BUFFER_SIZE*MESSAGE_NUMBER*CLIENT_NUMBER);
+			} catch (Exception e) {
+				System.out.println("Cannot set the reveive buff");
+				System.exit(0);
+			}	
+			try {
+				server.bind(address,1000); //backlog=1000
+			} catch (Exception e) {
+				System.out.println("Cannot bind the address");
+				System.exit(0);
+			}
+			
 			//System.out.println("AsynchronousServer:waiting for connection...");  
+			if(server.isOpen()){
+		        new Thread(new Runnable() {
+		            @Override
+		            public void run() {
+		                Runner.initClientPool();
+		            }
+		        }).start();
+		        //Runner.initClientPool();
+			}
 			while(true){			
 				try {
 					Future<AsynchronousSocketChannel> asynchronousSocketChannelFuture=server.accept();
@@ -40,7 +71,7 @@ public class Server_AF extends Server<AsynchronousServerSocketChannel,Asynchrono
 					e.printStackTrace();
 				} 				
 			}		  
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 	}

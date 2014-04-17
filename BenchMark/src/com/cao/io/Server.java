@@ -5,9 +5,10 @@ import java.nio.channels.NetworkChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
 abstract public class Server<S extends NetworkChannel,C extends NetworkChannel> {
-	public static int PORT_NUMBER=Integer.getInteger("portNumber", 10000);
+	public static int PORT_NUMBER=Integer.parseInt(System.getProperty("portNumber").trim());
 	public static int BUFFER_SIZE = Integer.parseInt(System.getProperty("buffSize").trim());
 	public static int MESSAGE_NUMBER = Integer.parseInt(System.getProperty("messageNumber").trim());
+	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
 	protected S server;
 	abstract public void listen();
 	abstract public void sendText(ByteBuffer writebuff,C socket,int messageNow);

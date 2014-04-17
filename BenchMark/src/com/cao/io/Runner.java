@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Runner {
 	//public static int CLIENT_NUMBER = Integer.getInteger("clientNumber", 100);
+	public static boolean bolOpen=false;
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
     public static void main(String[] args) {   	
 		//System.out.println("number："+CLIENT_NUMBER);
@@ -15,12 +16,13 @@ public class Runner {
                 newServer().listen();
             }
         }).start();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                initClientPool();
-            }
-        }).start();
+        
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                initClientPool();
+//            }
+//        }).start();
     }
 
     static Server<?,?> newServer() {
@@ -73,4 +75,13 @@ public class Runner {
            e.printStackTrace();
        }
    }
+    
+    public static void initClient(){
+    	new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initClientPool();
+            }
+        }).start();
+    }
 }

@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Server_A extends Server<AsynchronousServerSocketChannel,AsynchronousSocketChannel>{
-	//public AtomicInteger messageNow=new AtomicInteger(0);
 	@Override
 	public void listen() {
 		    	
@@ -21,17 +20,48 @@ public class Server_A extends Server<AsynchronousServerSocketChannel,Asynchronou
 	     AsynchronousChannelGroup group = AsynchronousChannelGroup.withCachedThreadPool(Executors.newCachedThreadPool(), 10);
 		 //open and bind
 		 InetSocketAddress address = new InetSocketAddress("localhost",PORT_NUMBER);
-		 server = AsynchronousServerSocketChannel.open(group).bind(address);  
-		 server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-	 	 server.setOption(StandardSocketOptions.SO_RCVBUF, BUFFER_SIZE);
+		 try {
+			server = AsynchronousServerSocketChannel.open(group);
+		} catch (Exception e) {
+			System.out.println("Cannot open the server");
+			System.exit(0);
+		}
+		 try {
+			server.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+		} catch (Exception e) {
+			System.out.println("Cannot set the reuse address");
+			System.exit(0);
+		}
+	 	 try {
+			server.setOption(StandardSocketOptions.SO_RCVBUF, BUFFER_SIZE*MESSAGE_NUMBER*CLIENT_NUMBER);
+		} catch (Exception e) {
+			System.out.println("Cannot set the reveive buff");
+			System.exit(0);
+		}
+	 	try {
+			server.bind(address,1000);  //backlog=1000
+		} catch (Exception e) {
+			System.out.println("Cannot bind the address");
+			System.exit(0);
+		}
+	 	
 	 	 //System.out.println("AsynchronousServer:waiting for connection...");
-		 
+	 	 if(server.isOpen()){
+	        new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                Runner.initClientPool();
+	            }
+	        }).start();
+	        //Runner.initClientPool();
+		 }
+	 	 
          //accept the socket
 		 server.accept(null, new ServerAccept());
-		  
-		// Awaits termination of the group.
-		group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-		} catch (IOException | InterruptedException e) {
+	 	
+		 // Awaits termination of the group.
+		 group.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS); 
+	    }catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 	  }	
 	}

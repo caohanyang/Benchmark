@@ -24,8 +24,7 @@ public class HandleFile {
 	public static int TEST_TIMES = Integer.parseInt(System.getProperty("testTimes").trim());
 	public static int REMOVE_TIMES = Integer.parseInt(System.getProperty("removeTimes").trim());
 	public static int CLIENT_NUMBER = Integer.parseInt(System.getProperty("clientNumber").trim());
-	//public static int testTimes=20;
-	//public static int removeTimes=4;
+	
 	public static int modeNumber=4;
 	//public static int clientNumber=1;
 	
@@ -38,7 +37,8 @@ public class HandleFile {
 	}
 	
 	private static void testStartTime() {
-		String s="C:/Users/CAO HANYANG/git/BenchMark/BenchMark/";
+//		String s="C:/Users/CAO HANYANG/git/BenchMark/BenchMark/";
+		String s="/home/cao/UB1/BenchMark/";
 		String sFile = s+DATE_TIME+"/S"+DATE_TIME+".txt";
 		String aFile = s+DATE_TIME+"/A"+DATE_TIME+".txt";
 		String fFile = s+DATE_TIME+"/F"+DATE_TIME+".txt";
@@ -46,6 +46,7 @@ public class HandleFile {
 		slistTotal=readFile(sFile);
 		alistTotal=readFile(aFile);
 		flistTotal=readFile(fFile);
+		//System.out.println(slistTotal);
 		
 		String sbwFile=s+DATE_TIME+"/SBW"+DATE_TIME+".csv";
 		String sawFile=s+DATE_TIME+"/SAW"+DATE_TIME+".csv";
@@ -92,7 +93,7 @@ public class HandleFile {
 		String s = new String(); 
 		if(file.exists()){
 			try {
-				InputStreamReader read = new InputStreamReader(new FileInputStream(file),"Unicode");
+				InputStreamReader read = new InputStreamReader(new FileInputStream(file),"utf8");
 				BufferedReader reader=new BufferedReader(read);
 				while((s=reader.readLine())!=null){
 					//int value=Integer.parseInt(s.trim());
@@ -188,25 +189,27 @@ public class HandleFile {
 	         aw.writeRecord(contents); 
 	         bn.writeRecord(contents); 
 	         an.writeRecord(contents);
-
+	         
 	         for(int i=0;i<listTotal.size()/modeNumber;i++){
 	        	 //remove the fist few numbers of each test
                  if(i<REMOVE_TIMES) continue;
                  if(i>=TEST_TIMES&i<(TEST_TIMES+REMOVE_TIMES)) continue;
                  if(i>=(TEST_TIMES*2)&i<(TEST_TIMES*2+REMOVE_TIMES)) continue;
                  if(i>=(TEST_TIMES*3)&i<(TEST_TIMES*3+REMOVE_TIMES)) continue;
-	        	 
 	        	 if(i<TEST_TIMES){
 	        		 String[] bbb={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
 	        		 bw.writeRecord(bbb);
 	        	 }else if(i<TEST_TIMES*2){
 	        		 String[] aaa={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 System.out.println(aaa);
 	        		 aw.writeRecord(aaa);
 	        	 }else if(i<TEST_TIMES*3){
 	        		 String[] nnn={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 System.out.println(nnn);
 	        		 bn.writeRecord(nnn);
 	        	 }else {
 	        		 String[] kkk={listTotal.get(i*modeNumber),listTotal.get(i*modeNumber+1),listTotal.get(i*modeNumber+2),listTotal.get(i*modeNumber+3)};
+	        		 System.out.println(kkk);
 	        		 an.writeRecord(kkk);
 	        	 }
 	        	 
